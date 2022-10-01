@@ -10,8 +10,9 @@
 git clone https://github.com/VolumeCore/websec-2.git
 ```
 2. В папке с файлом `server.js` откройте терминал
-3. Выполните следующую команду (необходимо наличие `Node.js`)
+3. Выполните следующую команду (необходимо наличие установленного `Node.js`)
 ```sh
+npm i
 node server.js
 ```
 5. Откройте в браузере http://localhost:8000/ 
