@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="style.css">
+    <title>Car game</title>
+</head>
+<body>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Привет! Введи своё имя и нажми продолжить</h2>
+            </div>
+            <div class="modal-body">
+                <p>Давно тебя не было в уличных гонках... Здесь тебе нужно управлять машиной, используя стрелочки на клавиатуре, и собирать монетки на игровом поле, стараясь набрать как можно больше очков</p>
+                <input type="text" id="username">
+                <br>
+                <span id="message" style="visibility: hidden">Введите от 3 до 10 символов</span>
+                <br>
+                <button class="continue-button">Продолжить</button>
+            </div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module" src="game.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
