@@ -51,8 +51,6 @@ io.on('connection', (socket) => {
     socket.on('move', (keysDown) => {
         let player = entities.players.find((player) => player.id === socket.id);
         if (typeof player !== "undefined") {
-            let increaseInterval1, increaseInterval2;
-            let decreaseInterval1, decreaseInterval2;
             if (player.velocity > 0.1 || player.velocity < -0.1) {
                 player.y -= player.velocity * Math.cos(player.angle * Math.PI / 180);
                 player.x += player.velocity * Math.sin(player.angle * Math.PI / 180);
@@ -71,30 +69,38 @@ io.on('connection', (socket) => {
             }
 
             if (38 in keysDown) { // Player is holding up key
-                increaseInterval1 = setInterval(() => {
+                player["increase1"] = setInterval(() => {
                     player.velocity < 4 && (player.velocity += 0.02);
                 }, 10);
             } else {
-                clearInterval(increaseInterval1);
-                decreaseInterval2 = setInterval(() => {
+                if (typeof player["increase1"] !== 'undefined') {
+                    clearInterval(player["increase1"]);
+                }
+                player["decrease2"] = setInterval(() => {
                     player.velocity > 0 && (player.velocity -= 0.05);
                 }, 10);
                 if (player.velocity <= 0.05) {
-                    clearInterval(decreaseInterval2);
+                    if (typeof player["decrease2"] !== 'undefined') {
+                        clearInterval(player["decrease2"]);
+                    }
                 }
             }
             if (40 in keysDown) { // Player is holding down key
-                decreaseInterval1 = setInterval(() => {
+                player["decrease1"] = setInterval(() => {
                     player.velocity > -4 && (player.velocity -= 0.02);
                 }, 10);
             } else {
-                clearInterval(decreaseInterval1);
+                if (typeof player["decrease1"] !== 'undefined') {
+                    clearInterval(player["decrease1"]);
+                }
                 if (player.velocity)
-                    increaseInterval2 = setInterval(() => {
+                    player["increase2"] = setInterval(() => {
                         player.velocity < 0 && (player.velocity += 0.05);
                     }, 10);
                 if (player.velocity >= 0.05) {
-                    clearInterval(increaseInterval2);
+                    if (typeof player["increase2"] !== 'undefined') {
+                        clearInterval(player["increase2"]);
+                    }
                 }
             }
             if (37 in keysDown) { // Player is holding left key
