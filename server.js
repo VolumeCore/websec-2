@@ -51,8 +51,6 @@ io.on('connection', (socket) => {
     socket.on('move', (keysDown) => {
         let player = entities.players.find((player) => player.id === socket.id);
         if (typeof player !== "undefined") {
-            let increaseInterval1, increaseInterval2;
-            let decreaseInterval1, decreaseInterval2;
             if (player.velocity > 0.1 || player.velocity < -0.1) {
                 player.y -= player.velocity * Math.cos(player.angle * Math.PI / 180);
                 player.x += player.velocity * Math.sin(player.angle * Math.PI / 180);
@@ -71,31 +69,16 @@ io.on('connection', (socket) => {
             }
 
             if (38 in keysDown) { // Player is holding up key
-                increaseInterval1 = setInterval(() => {
-                    player.velocity < 4 && (player.velocity += 0.02);
-                }, 10);
+                player.velocity < 4 && (player.velocity += 0.15);
             } else {
-                clearInterval(increaseInterval1);
-                decreaseInterval2 = setInterval(() => {
-                    player.velocity > 0 && (player.velocity -= 0.05);
-                }, 10);
-                if (player.velocity <= 0.05) {
-                    clearInterval(decreaseInterval2);
-                }
+                player.velocity > 0 && (player.velocity -= 0.15);
+                player.velocity < 0.15 && (!40 in keysDown) && (player.velocity = 0);
             }
             if (40 in keysDown) { // Player is holding down key
-                decreaseInterval1 = setInterval(() => {
-                    player.velocity > -4 && (player.velocity -= 0.02);
-                }, 10);
+                player.velocity > -4 && (player.velocity -= 0.02);
             } else {
-                clearInterval(decreaseInterval1);
-                if (player.velocity)
-                    increaseInterval2 = setInterval(() => {
-                        player.velocity < 0 && (player.velocity += 0.05);
-                    }, 10);
-                if (player.velocity >= 0.05) {
-                    clearInterval(increaseInterval2);
-                }
+                player.velocity < 0 && (player.velocity += 0.15);
+                player.velocity > -0.15 && (!38 in keysDown) && (player.velocity = 0);
             }
             if (37 in keysDown) { // Player is holding left key
                 player.angle -= 2;
@@ -109,7 +92,7 @@ io.on('connection', (socket) => {
                     let playerCoords = { x: player.x - images.playerImage.width / 2, y: player.y - images.playerImage.height / 2, x1: player.x + images.playerImage.width / 2, y1: player.y + images.playerImage.height / 2  };
                     let coinCoords = { x: coin.x, y: coin.y, x1: coin.x + images.coinImage.width, y1: coin.y + images.coinImage.height };
 
-                    // algorithm src https://xdan.ru/how-to-check-intersect-two-rectangles.html
+                    // collision player and coin. Algorithm src https://xdan.ru/how-to-check-intersect-two-rectangles.html
                     if ((((playerCoords.x >= coinCoords.x && playerCoords.x<=coinCoords.x1) || (playerCoords.x1 >= coinCoords.x && playerCoords.x1 <= coinCoords.x1))
                             && ((playerCoords.y >= coinCoords.y && playerCoords.y <= coinCoords.y1 ) || (playerCoords.y1 >= coinCoords.y && playerCoords.y1 <= coinCoords.y1)))
                         || (((coinCoords.x >= playerCoords.x && coinCoords.x <= playerCoords.x1 ) || (coinCoords.x1 >= playerCoords.x && coinCoords.x1 <= playerCoords.x1))
