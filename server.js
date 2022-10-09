@@ -35,7 +35,13 @@ sizeOf("client/assets/car.png", (err, dimensions) => {
 
 // connect socket and calculate any events
 io.on('connection', (socket) => {
-    socket.on('new player', (username) => {
+    socket.on('new player', (username, color) => {
+        for (let player of entities.players) {
+            if (username === player.name) {
+                io.emit("nickname exists");
+                return;
+            }
+        }
         entities.players.push({
             id: socket.id,
             name: username,
@@ -43,8 +49,10 @@ io.on('connection', (socket) => {
             x: 200,
             y: 200,
             angle: 0,
-            velocity: 0
+            velocity: 0,
+            color: color,
         });
+        io.emit("successful connection");
     });
 
     // if client says that someone is driving
@@ -54,37 +62,39 @@ io.on('connection', (socket) => {
             if (player.velocity > 0.1 || player.velocity < -0.1) {
                 player.y -= player.velocity * Math.cos(player.angle * Math.PI / 180);
                 player.x += player.velocity * Math.sin(player.angle * Math.PI / 180);
-                if (player.x > 1280) {
-                    player.x = 1279;
+                if (player.x > 1260) {
+                    player.x = 1259;
                 }
-                if (player.x < 0) {
-                    player.x = 1;
+                if (player.x < 20) {
+                    player.x = 21;
                 }
-                if (player.y > 720) {
-                    player.y = 719;
+                if (player.y > 700) {
+                    player.y = 699;
                 }
-                if (player.y < 0) {
-                    player.y = 1;
+                if (player.y < 20) {
+                    player.y = 21;
                 }
             }
 
-            if (38 in keysDown) { // Player is holding up key
+            if (38 in keysDown || 87 in keysDown) { // Player is holding up key
                 player.velocity < 4 && (player.velocity += 0.15);
             } else {
                 player.velocity > 0 && (player.velocity -= 0.15);
                 player.velocity < 0.15 && (!40 in keysDown) && (player.velocity = 0);
             }
-            if (40 in keysDown) { // Player is holding down key
-                player.velocity > -4 && (player.velocity -= 0.02);
+            if (40 in keysDown || 83 in keysDown) { // Player is holding down key
+                player.velocity > -4 && (player.velocity -= 0.15);
             } else {
                 player.velocity < 0 && (player.velocity += 0.15);
                 player.velocity > -0.15 && (!38 in keysDown) && (player.velocity = 0);
             }
-            if (37 in keysDown) { // Player is holding left key
-                player.angle -= 2;
+            if (37 in keysDown || 65 in keysDown) { // Player is holding left key
+                player.velocity > 0 && (player.angle -= 2);
+                player.velocity < 0 && (player.angle += 2);
             }
-            if (39 in keysDown) { // Player is holding right key
-                player.angle += 2;
+            if (39 in keysDown || 68 in keysDown) { // Player is holding right key
+                player.velocity < 0 && (player.angle -= 2);
+                player.velocity > 0 && (player.angle += 2);
             }
 
             for (let player of entities.players) {
@@ -102,8 +112,8 @@ io.on('connection', (socket) => {
                             || (((coinCoords.x >= playerCoords.x && coinCoords.x <= playerCoords.x1 ) || ( coinCoords.x1 >= playerCoords.x && coinCoords.x1 <= playerCoords.x1 ))
                                 && ((playerCoords.y >= coinCoords.y && playerCoords.y <= coinCoords.y1 ) || ( playerCoords.y1 >= coinCoords.y && playerCoords.y1 <= coinCoords.y1))))) {
                         player.score++;
-                        coin.x = Math.floor(Math.random() * 1280);
-                        coin.y = Math.floor(Math.random() * 720);
+                        coin.x = Math.floor(Math.random() * 1260);
+                        coin.y = Math.floor(Math.random() * 700);
                     }
                 }
             }

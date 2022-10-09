@@ -1,21 +1,45 @@
 let modal = document.getElementById("myModal");
 let continueButton = document.querySelector(".continue-button");
 let input = document.querySelector("#username");
+let colorPicker = document.querySelector(".color-picker");
+let errorMessage = document.querySelector("#message");
 let socket = io();
-input.value = "";
 let readyToStart = false;
 
-continueButton.onclick = () => {
-    if (input.value !== "") {
-        modal.style.display = "none";
-        socket.emit("new player", input.value);
-        readyToStart = true;
-    } else {
-        input.classList.add("invalid-input");
-        document.querySelector("#message").classList.add("invalid-message");
+for (let color of colorPicker.children) {
+    color.onclick = () => {
+        for (let c of colorPicker.children) {
+            c.classList.remove("active");
+        }
+        color.classList.add("active");
     }
-};
+}
 
+continueButton.onclick = () => {
+    console.log(input.value);
+    if (!input.value.trim().length) {
+        errorMessage.classList.add("invalid-message");
+        input.classList.add("invalid-input");
+        errorMessage.innerHTML = "Введите от 3 до 10 символов";
+        return;
+    }
+    if (document.querySelector(".color-picker > .active") === null) {
+        errorMessage.classList.add("invalid-message");
+        input.classList.add("invalid-input");
+        errorMessage.innerHTML = "Выберите цвет машинки";
+        return;
+    }
+    socket.emit("new player", input.value, document.querySelector(".color-picker > .active").classList[0]);
+    socket.on("nickname exists", () => {
+        errorMessage.classList.add("invalid-message");
+        input.classList.add("invalid-input");
+        errorMessage.innerHTML = "Игрок с таким именем уже играет, придумайте другое";
+    });
+    socket.on("successful connection", () => {
+        modal.style.display = "none";
+        readyToStart = true;
+    });
+};
 
 let canvas = document.createElement("canvas");
 let ctx = canvas.getContext("2d");
@@ -28,19 +52,32 @@ document.body.appendChild(canvas);
 // load assets
 let bgReady = false;
 let bgImage = new Image();
-bgImage.onload = function () {
+bgImage.onload = () => {
     bgReady = true;
 };
 bgImage.src = "assets/background.png";
+
+let playerImages = [];
+let playerImage; // random car image (same width & height) to calculate any events
+playerImages.push(new Image());
+playerImages[0].src = "assets/car_green.png";
+playerImages.push(new Image());
+playerImages[1].src = "assets/car_yellow.png";
+playerImages.push(new Image());
+playerImages[2].src = "assets/car_blue.png";
+let playerImagesLoaded = 0;
 let playerReady = false;
-let playerImage = new Image();
-playerImage.onload = function () {
-    playerReady = true;
-};
-playerImage.src = "assets/car.png";
+for (let image of playerImages) {
+    image.onload = () => {
+        playerImagesLoaded++;
+        playerImagesLoaded === playerImages.length && (playerReady = true);
+        playerImage = playerImages[0];
+    }
+}
+
 let coinReady = false;
 let coinImage = new Image();
-coinImage.onload = function () {
+coinImage.onload = () => {
     coinReady = true;
 };
 coinImage.src = "assets/coin.png";
@@ -55,11 +92,6 @@ addEventListener("keyup", function (key) {
     delete keysDown[key.keyCode];
 }, false);
 
-// Update game objects - change player position based on key pressed
-function update() {
-    socket.emit('move', keysDown);
-}
-
 let entities = { players: [], coins: [] };
 
 // Draw everything on the canvas
@@ -69,12 +101,29 @@ function render(entities) {
     }
     if (playerReady) {
         for (let player of entities.players) {
+            let playerImageToDraw;
+            switch (player.color) {
+                case "green":
+                    playerImageToDraw = playerImages[0];
+                    break;
+                case "yellow":
+                    playerImageToDraw = playerImages[1];
+                    break;
+                case "blue":
+                    playerImageToDraw = playerImages[2];
+                    break;
+            }
             ctx.save();
             ctx.translate(player.x, player.y);
             ctx.rotate(player.angle * Math.PI / 180);
-            ctx.translate(-16, -30);
-            ctx.drawImage(playerImage, 0, 0);
+            ctx.translate(-playerImage.width / 2, -playerImage.height / 2);
+            ctx.drawImage(playerImageToDraw, 0, 0);
             ctx.restore();
+
+            ctx.fillStyle = "rgb(181,0,255)";
+            ctx.font = "16px Helvetica";
+            ctx.textAlign = "center";
+            ctx.fillText(player.name, player.x, player.y - 45);
         }
     }
     if (coinReady) {
@@ -82,32 +131,26 @@ function render(entities) {
             ctx.drawImage(coinImage, coin.x, coin.y);
         }
     }
-    // Display score and time
     ctx.fillStyle = "rgb(181,0,255)";
-    ctx.font = "16px Helvetica";
+    ctx.font = "bold 16px Helvetica";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
     ctx.fillText("Leaderboard: ", 20, 30);
     for (let i = 0; i < (entities.players.length > 5 ? 5 : entities.players.length); i++) {
         ctx.fillText(entities.players[i].name + " : " + entities.players[i].score, 20, 50 + i * 25);
     }
-    // // Display game over message when timer finished
-    // if (finished === true) {
-    //     ctx.fillText("Game over!", 200, 220);
-    // }
 }
-// timer interval is every second (1000ms)
-// setInterval(counter, 1000);
+
 function main() {
     // run the update function
     if (readyToStart) {
-        update(); // do not change
-        // run the render function
+        socket.emit('move', keysDown);
         render(entities);
     }
     // Request to do this again ASAP
     requestAnimationFrame(main);
 }
+
 // Cross-browser support for requestAnimationFrame
 let w = window;
 requestAnimationFrame = w.requestAnimationFrame || w.webkitRequestAnimationFrame || w.msRequestAnimationFrame || w.mozRequestAnimationFrame;

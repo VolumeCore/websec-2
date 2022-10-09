@@ -138,3 +138,32 @@ body {
     visibility: visible !important;
     color: #e46868;
 }
+
+.color-picker {
+    display: flex;
+    justify-content: space-around;
+    margin: 0 auto;
+    width: 25%;
+}
+
+.color-picker > div {
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+}
+
+.color-picker > div:nth-child(1) {
+    background-color: green;
+}
+
+.color-picker > div:nth-child(2) {
+    background-color: yellow;
+}
+
+.color-picker > div:nth-child(3) {
+    background-color: blue;
+}
+
+.color-picker > .active {
+    border: 3px solid #6d0080;
+}

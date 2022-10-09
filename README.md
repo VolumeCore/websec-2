@@ -1,8 +1,8 @@
 # Игра Blood Bowl
 
-![welcome screen](https://sun9-72.userapi.com/impg/C8CRLB7v4jFwzm_qIH-vrfLk8_oRBL-Ldb37Mw/3Ai45WlU5QU.jpg?size=1600x898&quality=96&sign=f07ab3ad9a7ee3a362a2d9b6ef0ff299&type=album)
+![welcome screen](https://sun9-86.userapi.com/impg/ivjWYT-0L1K9zpwkfZV9chpUy-lokDdm8o_PRA/e5j9wqqrgMc.jpg?size=1280x701&quality=96&sign=9d96e9b912f754457e35690e04502a67&type=album)
 
-![gameplay screen](https://sun9-23.userapi.com/impg/bbzlNJTuyOHpzy1EZt3nueRRKSOr148tMXpx0w/yH9CM5OPoaM.jpg?size=1852x924&quality=96&sign=ed02901c40bc5180aa0c0caaf52c97c8&type=album)
+![gameplay screen](https://sun9-38.userapi.com/impg/ecFzcHcaLvMNoqNjbChr-3BJBFedocdq3_9MUg/ttoeFOGBzn8.jpg?size=1280x640&quality=96&sign=9de71eaaeebba1356e4dae67ce9295e4&type=album)
 
 ## Как запустить проект
 1. Склонируйте репозиторий
