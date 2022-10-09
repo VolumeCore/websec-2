@@ -29,7 +29,7 @@ let images = { coinImage: {}, playerImage: {} };
 sizeOf("client/assets/coin.png", (err, dimensions) => {
     images.coinImage = { width: dimensions.width, height: dimensions.height };
 });
-sizeOf("client/assets/car.png", (err, dimensions) => {
+sizeOf("client/assets/car_green.png", (err, dimensions) => {
     images.playerImage = { width: dimensions.width, height: dimensions.height }
 });
 
